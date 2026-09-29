@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ESGNOVA | Secure Login</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{min-height:100vh;overflow:hidden;display:flex;justify-content:center;align-items:center;position:relative}
+.esg-background{position:fixed;inset:0;overflow:hidden;z-index:0;pointer-events:none;background:radial-gradient(circle at 20% 30%,#20bd7340 0,transparent 25%),radial-gradient(circle at 80% 70%,#168a5c35 0,transparent 28%),linear-gradient(135deg,#e8fff4,#dff7ed,#eefbf7)}
+.glow{position:absolute;border-radius:50%;filter:blur(3px);opacity:.45;animation:floatGlow 12s ease-in-out infinite}
+.glow1{width:280px;height:280px;background:#20bd7350;top:-80px;left:-80px}
+.glow2{width:350px;height:350px;background:#0d8f6050;right:-120px;bottom:-100px;animation-delay:3s}
+.glow3{width:180px;height:180px;background:#70d9a050;left:45%;top:15%;animation-delay:6s}
+.particle{position:absolute;width:7px;height:7px;background:#20bd73;border-radius:50%;opacity:.55;animation:particleMove 10s linear infinite}
+.p1{left:10%}.p2{left:25%;animation-delay:2s}.p3{left:40%;animation-delay:4s}.p4{left:60%;animation-delay:1s}.p5{left:75%;animation-delay:5s}.p6{left:90%;animation-delay:3s}
+.leaf{position:absolute;font-size:45px;opacity:.12;animation:leafFloat 9s ease-in-out infinite}
+.leaf1{left:8%;bottom:15%}.leaf2{right:10%;top:18%;font-size:60px;animation-delay:3s}.leaf3{right:30%;bottom:8%;font-size:35px;animation-delay:6s}
+.login-box{width:410px;max-width:92%;background:rgba(255,255,255,.94);backdrop-filter:blur(15px);padding:35px;border-radius:22px;box-shadow:0 20px 60px rgba(0,60,40,.18);text-align:center;position:relative;z-index:5;animation:cardAppear .7s ease}
+.logo{font-size:32px;font-weight:bold;color:#168a45;margin-bottom:8px}.subtitle{color:#66736e;margin-bottom:25px;font-size:14px}
+.input-box{text-align:left;margin-bottom:17px}label{display:block;margin-bottom:7px;font-weight:bold;color:#263d36;font-size:14px}
+input,select{width:100%;padding:13px;border:1px solid #ccd9d4;border-radius:10px;font-size:15px;background:#fff}
+input:focus,select:focus{outline:none;border-color:#168a45;box-shadow:0 0 0 3px #168a4515}
+.password-wrapper{position:relative}.password-wrapper input{padding-right:45px}.eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px}
+.captcha-box{background:#f2f7f5;border:1px solid #d8e5df;border-radius:12px;padding:12px;margin-bottom:18px}.captcha-row{display:flex;align-items:center;gap:10px}
+.captcha-code{flex:1;background:#dff4e9;border-radius:8px;padding:12px;font-size:21px;font-weight:bold;letter-spacing:6px;color:#116b45;user-select:none;text-decoration:line-through}
+.refresh-btn{width:45px;height:45px;border:0;border-radius:8px;background:#168a45;color:white;cursor:pointer;font-size:18px}.captcha-input{margin-top:10px}
+.login-button{width:100%;padding:14px;border:0;border-radius:10px;background:linear-gradient(135deg,#168a45,#20bd73);color:white;font-size:16px;font-weight:bold;cursor:pointer;box-shadow:0 7px 20px #168a4535;transition:.2s}.login-button:hover{transform:translateY(-2px)}
+.otp-screen,.success-screen{display:none}.otp-icon{width:70px;height:70px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#e1f7eb;font-size:32px;animation:pulse 2s infinite}
+.otp-title{font-size:25px;color:#17332d;margin-bottom:8px}.otp-text{color:#71817b;font-size:14px;line-height:1.5;margin-bottom:22px}.otp-inputs{display:flex;justify-content:center;gap:8px;margin-bottom:20px}
+.otp-input{width:45px;height:52px;text-align:center;font-size:22px;font-weight:bold;border:1px solid #ccd9d4;border-radius:10px}.otp-input:focus{border-color:#168a45;outline:none;box-shadow:0 0 0 3px #168a4515}
+.resend{margin:16px 0;font-size:13px;color:#6c7d76}.resend button{border:0;background:none;color:#168a45;font-weight:bold;cursor:pointer}.resend button:disabled{color:#999;cursor:not-allowed}
+.success-icon{width:85px;height:85px;margin:10px auto 20px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#20bd73;color:white;font-size:45px;animation:successPop .6s ease}.success-title{font-size:26px;color:#168a45;margin-bottom:10px}.success-text{color:#687972;line-height:1.5;margin-bottom:20px}
+.forgot{margin-top:17px;font-size:14px;color:#168a45;cursor:pointer}.footer{margin-top:22px;font-size:12px;color:#899590}
+.verification-animation{display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;flex-direction:column;background:rgba(255,255,255,.97)}
+.verify-circle{width:105px;height:105px;border-radius:50%;border:5px solid #20bd73;display:flex;align-items:center;justify-content:center;transform:scale(.5);animation:verifyCircle .6s ease forwards}
+.checkmark{color:#20bd73;font-size:60px;font-weight:bold;opacity:0;transform:scale(.3);animation:checkAppear .45s ease .55s forwards}
+.verify-text{margin-top:22px;font-size:20px;font-weight:600;color:#176b4d;animation:textAppear .5s ease .2s both}
+@keyframes floatGlow{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-30px) scale(1.12)}}
+@keyframes particleMove{0%{transform:translateY(110vh) scale(.5);opacity:0}20%{opacity:.6}80%{opacity:.6}100%{transform:translateY(-20vh) scale(1.2);opacity:0}}
+@keyframes leafFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-35px) rotate(12deg)}}
+@keyframes cardAppear{from{opacity:0;transform:translateY(25px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+@keyframes successPop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes verifyCircle{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.12);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes checkAppear{0%{opacity:0;transform:scale(.3)}70%{transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
+@keyframes textAppear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:500px){.login-box{padding:25px 20px}.logo{font-size:28px}.otp-input{width:39px;height:48px}}
+</style>
+</head>
+<body>
+
+<div class="esg-background">
+<div class="glow glow1"></div><div class="glow glow2"></div><div class="glow glow3"></div>
+<div class="particle p1"></div><div class="particle p2"></div><div class="particle p3"></div><div class="particle p4"></div><div class="particle p5"></div><div class="particle p6"></div>
+<div class="leaf leaf1"></div><div class="leaf leaf2"></div><div class="leaf leaf3"></div>
+</div>
+
+<div class="login-box">
+<div id="loginScreen">
+<div class="logo"> ESGNova</div>
+<div class="subtitle">Secure BRSR & ESG Reporting Portal</div>
+
+<div class="input-box"><label for="email">Email</label><input id="email" type="email" placeholder="Enter your email" autocomplete="email"></div>
+<div class="input-box"><label for="password">Password</label><div class="password-wrapper"><input id="password" type="password" placeholder="Enter your password"><span class="eye" onclick="togglePassword()"></span></div></div>
+<div class="input-box"><label for="role">Select Role</label><select id="role"><option value="">Select Role</option><option value="Admin"> Admin</option><option value="Project Manager"> Project Manager</option><option value="ESG Officer"> ESG Officer</option><option value="Reviewer"> Reviewer</option></select></div>
+
+<div class="input-box">
+<label>Security Verification</label>
+<div class="captcha-box">
+<div class="captcha-row"><div id="captchaCode" class="captcha-code">Loading...</div><button type="button" class="refresh-btn" onclick="generateCaptcha()">↻</button></div>
+<input id="captchaInput" class="captcha-input" placeholder="Enter CAPTCHA" autocomplete="off">
+</div>
+</div>
+
+<button type="button" class="login-button" onclick="startAuthentication()"> Continue Secure Login</button>
+<div class="forgot" onclick="forgotPassword()">Forgot Password?</div>
+<div class="footer">ESGNova © 2026 | Sustainable Reporting</div>
+</div>
+
+<div id="otpScreen" class="otp-screen">
+<div class="otp-icon">📱</div>
+<h2 class="otp-title">OTP Verification</h2>
+<p class="otp-text">A 6-digit verification code has been generated for your login.<br>Demo OTP will be shown for testing.</p>
+<div class="otp-inputs">
+<input class="otp-input" maxlength="1" inputmode="numeric"><input class="otp-input" maxlength="1" inputmode="numeric"><input class="otp-input" maxlength="1" inputmode="numeric"><input class="otp-input" maxlength="1" inputmode="numeric"><input class="otp-input" maxlength="1" inputmode="numeric"><input class="otp-input" maxlength="1" inputmode="numeric">
+</div>
+<div class="resend"><span id="timer">Resend OTP in 30s</span> <button id="resendButton" type="button" onclick="resendOTP()" disabled>Resend</button></div>
+<button type="button" class="login-button" onclick="verifyOTP()">✅ Verify OTP</button>
+<div class="forgot" onclick="backToLogin()">← Back to Login</div>
+</div>
+
+<div id="successScreen" class="success-screen">
+<div class="success-icon">✓</div>
+<h2 class="success-title">Verified Successfully</h2>
+<p class="success-text">Your identity has been verified.<br>Welcome to ESGNova.</p>
+<button type="button" class="login-button" onclick="goToDashboard()">Continue to Dashboard →</button>
+</div>
+</div>
+
+<div id="verificationAnimation" class="verification-animation">
+<div class="verify-circle"><div class="checkmark">✓</div></div>
+<div id="verifyText" class="verify-text">Verifying...</div>
+</div>
+
+<script>
+let generatedCaptcha="";
+let generatedOTP="";
+let resendTimer=30;
+let timerInterval=null;
+let otpInputs=[];
+
+function generateCaptcha(){
+    const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    generatedCaptcha="";
+    for(let i=0;i<6;i++) generatedCaptcha+=chars.charAt(Math.floor(Math.random()*chars.length));
+    document.getElementById("captchaCode").textContent=generatedCaptcha;
+    document.getElementById("captchaInput").value="";
+}
+
+function togglePassword(){
+    const p=document.getElementById("password");
+    p.type=p.type==="password"?"text":"password";
+}
+
+function startAuthentication(){
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value;
+    const role=document.getElementById("role").value;
+    const captcha=document.getElementById("captchaInput").value.trim().toUpperCase();
+
+    if(!email||!password||!role){alert("Please enter email, password and select a role.");return;}
+    if(!email.includes("@")){alert("Please enter a valid email address.");return;}
+    if(captcha!==generatedCaptcha){alert("Incorrect CAPTCHA. Please try again.");generateCaptcha();return;}
+
+    generatedOTP=Math.floor(100000+Math.random()*900000).toString();
+    localStorage.setItem("pendingEmail",email);
+    localStorage.setItem("pendingRole",role);
+
+    alert("Your ESGNova demo OTP is:\n\n"+generatedOTP+"\n\nIn a production system this would be sent by email/SMS.");
+
+    document.getElementById("loginScreen").style.display="none";
+    document.getElementById("otpScreen").style.display="block";
+    startTimer();
+    focusFirstOTP();
+}
+
+function verifyOTP(){
+    let entered="";
+    otpInputs.forEach(input=>entered+=input.value);
+
+    if(entered.length!==6){alert("Please enter the complete 6-digit OTP.");return;}
+    if(entered!==generatedOTP){alert("Incorrect OTP. Please try again.");return;}
+
+    localStorage.setItem("loggedIn","true");
+    localStorage.setItem("userEmail",localStorage.getItem("pendingEmail")||"");
+    localStorage.setItem("userRole",localStorage.getItem("pendingRole")||"");
+    localStorage.removeItem("pendingEmail");
+    localStorage.removeItem("pendingRole");
+    clearInterval(timerInterval);
+
+    showVerificationAnimation();
+}
+
+function showVerificationAnimation(){
+    const overlay=document.getElementById("verificationAnimation");
+    const text=document.getElementById("verifyText");
+    overlay.style.display="flex";
+    text.textContent="Verifying...";
+
+    setTimeout(()=>{text.textContent="Verified Successfully ✓";},1200);
+
+    setTimeout(()=>{
+        overlay.style.display="none";
+        document.getElementById("otpScreen").style.display="none";
+        document.getElementById("successScreen").style.display="block";
+    },2200);
+}
+
+function startTimer(){
+    clearInterval(timerInterval);
+    resendTimer=30;
+    const timer=document.getElementById("timer");
+    const btn=document.getElementById("resendButton");
+    btn.disabled=true;
+    timer.textContent="Resend OTP in 30s";
+
+    timerInterval=setInterval(()=>{
+        resendTimer--;
+        if(resendTimer<=0){
+            clearInterval(timerInterval);
+            timer.textContent="You can resend OTP";
+            btn.disabled=false;
+        }else{
+            timer.textContent="Resend OTP in "+resendTimer+"s";
+        }
+    },1000);
+}
+
+function resendOTP(){
+    generatedOTP=Math.floor(100000+Math.random()*900000).toString();
+    alert("New ESGNova demo OTP:\n\n"+generatedOTP);
+    otpInputs.forEach(input=>input.value="");
+    startTimer();
+    focusFirstOTP();
+}
+
+function backToLogin(){
+    clearInterval(timerInterval);
+    document.getElementById("otpScreen").style.display="none";
+    document.getElementById("loginScreen").style.display="block";
+    generateCaptcha();
+}
+
+function forgotPassword(){
+    alert("Password recovery will be connected to email verification.");
+}
+
+function goToDashboard(){
+    window.location.href="dashboard.html";
+}
+
+function focusFirstOTP(){
+    setTimeout(()=>{if(otpInputs.length) otpInputs[0].focus();},100);
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+    otpInputs=Array.from(document.querySelectorAll(".otp-input"));
+
+    otpInputs.forEach((input,index)=>{
+        input.addEventListener("input",()=>{
+            input.value=input.value.replace(/[^0-9]/g,"").slice(0,1);
+            if(input.value && index<otpInputs.length-1) otpInputs[index+1].focus();
+        });
+        input.addEventListener("keydown",(event)=>{
+            if(event.key==="Backspace" && !input.value && index>0) otpInputs[index-1].focus();
+        });
+    });
+
+    generateCaptcha();
+});
+</script>
+</body>
+</html>
